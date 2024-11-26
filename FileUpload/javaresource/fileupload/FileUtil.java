@@ -3,6 +3,8 @@ package fileupload;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 
 import jakarta.servlet.ServletException;
@@ -25,6 +27,7 @@ public class FileUtil {
 		return originalFileName; // 업로드된 원본 파일명 반환
 	}
 	
+	
 	public static String renameFile(String sDirectory, String fileName) { // 파일명을 변경
 																			
 		String ext = fileName.substring(fileName.lastIndexOf("."));  // 파일명에서 확장자 추출 - 파일명 뒤에 ex)(.txt)확장자 잘라내기
@@ -39,4 +42,27 @@ public class FileUtil {
 		
 		return newFileName; // 새 파일명 반환
 	}
+
+	public static ArrayList<String> multipleFile(HttpServletRequest req, String sDirectory)
+			throws ServletException, IOException{ 
+		
+		ArrayList<String> listFileName = new ArrayList<>();
+		Collection<Part> parts = req.getParts();
+		for(Part part :parts) {
+			if(!part.getName().equals("ofile"))
+				continue;
+			
+			String partHeader = part.getHeader("content-disposition");
+			String[] phArr = partHeader.split("filename=");
+			String originalFileName = phArr[1].trim().replace("\"", "");
+			if (!originalFileName.isEmpty()) {
+				part.write(sDirectory+ File.separator +originalFileName);
+			}
+			listFileName.add(originalFileName);
+		}
+		return listFileName;
+	
+	}
+
+	
 }
